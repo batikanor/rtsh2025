@@ -3,6 +3,9 @@
 cd frontend && npm run dev
 ```
 
+## NOTE: You will see the outputs on localhost:3000/rtsh2025 (not on localhost:3000)
+
+
 # backend
 ```
 cd backend && uvicorn main:app --reload
