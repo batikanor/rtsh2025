@@ -1,7 +1,6 @@
 import localFont from 'next/font/local';
 import './globals.css';
 import Navbar from '../components/Navbar';
-// import Footer from '../components/Footer';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -23,58 +22,51 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased flex flex-col min-h-screen">
-        {/* Header */}
-        <header className="bg-white dark:bg-blue-800 shadow fixed top-0 left-0 right-0 z-50">
+      <body className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-200">
+        {/* Navbar */}
+        <header className="z-50">
           <Navbar />
         </header>
-        <div className="flex-1 flex flex-col lg:flex-row mt-[4rem]"> {/* Adjust the top margin */}
-          
-          {/* Left Sidebar */}
-          <aside className="hidden lg:block lg:w-1/5 p-4 bg-gray-100 dark:bg-gray-900 relative">
-            <div
-              className="absolute inset-0 bg-center opacity-20 dark:opacity-10"
-              style={{ 
-                backgroundImage: "url('/rtsh2025/aside-pattern.png')",
-                backgroundSize: "150%", // Increase or decrease to rescale
-                backgroundPosition: "center"
-              }}
-            />
-            {/* Add content here */}
-          </aside>
 
+        <div className="flex flex-1 pt-[4rem]">
+          {/* Left Sidebar with Repeated Background Pattern */}
+          <aside
+            className="hidden lg:flex flex-col w-64 border-r border-stone-200 dark:border-stone-700"
+            style={{
+              backgroundImage: 'url("/rtsh2025/aside-pattern.png")',
+              backgroundRepeat: 'repeat',
+              backgroundSize: 'auto',
+            }}
+          >
+            {/* Pattern only, no textual content */}
+          </aside>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 sm:p-12 bg-white dark:bg-gray-800"
-                        style={{ 
-                          // backgroundImage: "url('/night-sky.png')",
-                          // backgroundSize: "150%", // Increase or decrease to rescale
-                          // backgroundPosition: "center"
-                        }}>
-            {children}
+          <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-auto">
+            <div className="bg-stone-100 dark:bg-stone-800 p-6 rounded shadow-sm min-h-[calc(100vh-10rem)]">
+              {children}
+            </div>
           </main>
 
-          {/* Right Sidebar */}
-          <aside className="hidden lg:block lg:w-1/5 p-4 bg-gray-100 dark:bg-gray-900 relative">
-            <div
-              className="absolute inset-0 bg-center opacity-20 dark:opacity-10"
-              style={{ 
-                backgroundImage: "url('/rtsh2025/aside-pattern.png')",
-                backgroundSize: "150%", // Increase or decrease to rescale
-                backgroundPosition: "center"
-              }}
-            />
-            {/* Add content here */}
+          {/* Right Sidebar with Repeated Background Pattern */}
+          <aside
+            className="hidden xl:block w-64 border-l border-stone-200 dark:border-stone-700"
+            style={{
+              backgroundImage: 'url("/rtsh2025/aside-pattern.png")',
+              backgroundRepeat: 'repeat',
+              backgroundSize: 'auto',
+            }}
+          >
+            {/* Pattern only, no textual content */}
           </aside>
-
         </div>
 
         {/* Footer */}
-        <footer className="bg-white dark:bg-gray-800 shadow">
-          <p>Test Footer</p>
-          {/* <Footer /> */}
+        <footer className="bg-stone-50 dark:bg-stone-900 border-t border-stone-200 dark:border-stone-700 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between text-sm text-stone-600 dark:text-stone-400">
+            <p>&copy; {new Date().getFullYear()} RTSH. All rights reserved.</p>
+          </div>
         </footer>
-        <br/>
       </body>
     </html>
   );

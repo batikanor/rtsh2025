@@ -88,7 +88,6 @@ export default function Home() {
   const fetchJiraProjects = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/jira/projects`);
-      // response should be an array of projects
       setProjects(response.data || []);
     } catch (error) {
       console.error("Error fetching Jira projects:", error);
@@ -112,7 +111,7 @@ export default function Home() {
         <div className="mb-8">
           <button
             onClick={fetchHello}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             Fetch Hello Message
           </button>
@@ -126,11 +125,11 @@ export default function Home() {
             value={itemInput}
             onChange={(e) => setItemInput(e.target.value)}
             placeholder="Enter item name"
-            className="border border-gray-300 px-4 py-2 rounded"
+            className="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
           />
           <button
             onClick={sendItem}
-            className="bg-green-500 text-white px-4 py-2 rounded ml-2"
+            className="bg-green-500 text-white px-4 py-2 rounded ml-2 hover:bg-green-600 transition"
           >
             Send Item
           </button>
@@ -146,7 +145,7 @@ export default function Home() {
           <h2 className="text-xl font-bold mb-4">Jira Projects</h2>
           <button
             onClick={fetchJiraProjects}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             Fetch Jira Projects
           </button>
@@ -171,11 +170,11 @@ export default function Home() {
             value={jiraProjectKey}
             onChange={(e) => setJiraProjectKey(e.target.value)}
             placeholder="Jira Project Key (e.g. MYPROJ)"
-            className="border border-gray-300 px-4 py-2 rounded mr-2 w-full mb-4"
+            className="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 w-full mb-4"
           />
           <button
             onClick={fetchJiraIssues}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             Fetch Jira Issues
           </button>
@@ -197,17 +196,17 @@ export default function Home() {
               value={newIssueSummary}
               onChange={(e) => setNewIssueSummary(e.target.value)}
               placeholder="Issue summary"
-              className="border border-gray-300 px-4 py-2 rounded my-2 w-full"
+              className="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 my-2 w-full"
             />
             <textarea
               value={newIssueDescription}
               onChange={(e) => setNewIssueDescription(e.target.value)}
               placeholder="Issue description (optional)"
-              className="border border-gray-300 px-4 py-2 rounded my-2 w-full"
+              className="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 my-2 w-full"
             />
             <button
               onClick={createJiraIssue}
-              className="bg-green-500 text-white px-4 py-2 rounded"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
             >
               Create Jira Issue
             </button>
