@@ -21,10 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Move detect-package-manager inside frontend
+      # Detect package manager - allowed to use working-directory since it's a run step.
       - name: Detect package manager
-        working-directory: ./frontend
         id: detect-package-manager
+        working-directory: ./frontend
         run: |
           if [ -f "yarn.lock" ]; then
             echo "manager=yarn" >> $GITHUB_OUTPUT
@@ -43,43 +43,41 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # NOTE: We do not specify 'cache: $...' here. Instead, we rely on the cache action below.
-          # The setup-node caching feature attempts to handle caching itself, but since we have a custom subdirectory,
-          # let's rely on actions/cache for full control.
-      
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           static_site_generator: next
 
-      # Restore cache with correct paths and directory
+      # Restore cache - cannot use working-directory here, so we reference paths directly.
       - name: Restore cache
         uses: actions/cache@v4
-        working-directory: ./frontend
         with:
-          path: |
-            .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json', 'yarn.lock') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
+          path: frontend/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}-${{ hashFiles('frontend/**/*.[jt]s', 'frontend/**/*.[jt]sx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json', 'yarn.lock') }}-
+            ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json', 'frontend/yarn.lock') }}-
 
+      # Install dependencies - run step, so working-directory is allowed.
       - name: Install dependencies
         working-directory: ./frontend
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
+      # Build Next.js - run step, working-directory allowed.
       - name: Build with Next.js
         working-directory: ./frontend
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
-      # If needed, run next export here if not output: 'export'
+      # If you need to explicitly export static files, uncomment this step
       # - name: Export static files
       #   working-directory: ./frontend
       #   run: ${{ steps.detect-package-manager.outputs.runner }} next export
 
+      # Upload artifact - cannot use working-directory, so give full path.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./frontend/out
+          path: frontend/out
 
   deploy:
     environment:
