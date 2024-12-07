@@ -27,21 +27,18 @@ import {
 } from "@dnd-kit/core";
 
 const companies = {
-    BMW: ["TO DO", "IN PROGRESS", "DONE"],
-    BOSCH: [
-      "OPEN",
-      "IN PROGRESS",
-      "UNDER REVIEW",
-      "APPROVED",
-      "DONE",
-      "CANCELLED",
-      "REJECTED",
-    ],
-    Porsche: ["TO DO", "IN PROGRESS", "DONE"],
-
-    // Add more companies as needed
-  };
-  
+  BMW: ["TO DO", "IN PROGRESS", "DONE"],
+  BOSCH: [
+    "OPEN",
+    "IN PROGRESS",
+    "UNDER REVIEW",
+    "APPROVED",
+    "DONE",
+    "CANCELLED",
+    "REJECTED",
+  ],
+  Porsche: ["TO DO", "IN PROGRESS", "DONE"],
+};
 
 const companyAWorkflow = ["TO DO", "IN PROGRESS", "DONE"];
 const companyBWorkflow = [
@@ -172,10 +169,10 @@ const WorkflowBox = styled("div")({
 
 const CommentBox = styled(Paper)({
   padding: "0.75rem",
-  backgroundColor: "rgba(0, 0, 0, 0.05)", // Light gray with opacity
+  backgroundColor: "rgba(0, 0, 0, 0.05)",
   borderRadius: "0.375rem",
   margin: "0.5rem 0.5rem 0.5rem 0",
-  width: "calc(50% - 0.5rem)", // Adjust width to fit two per row
+  width: "calc(50% - 0.5rem)",
   boxShadow: "none",
   fontSize: "0.9rem",
 });
@@ -200,27 +197,25 @@ export default function Page() {
   const [activeDragItem, setActiveDragItem] = useState(null);
   const [llmCommands, setLlmCommands] = useState({});
   const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationResults, setSimulationResults] = useState([]);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "info", // 'success', 'error', 'warning', 'info'
+    severity: "info",
   });
+  const [companyA, setCompanyA] = useState("BMW"); // Default selection
+  const [companyB, setCompanyB] = useState("BOSCH"); // Default selection
 
   const handleDragStart = (event) => {
     setActiveDragItem(event.active.id);
   };
-  const [companyA, setCompanyA] = useState("BMW"); // Default selection
-  const [companyB, setCompanyB] = useState("BOSCH"); // Default selection
-
 
   const handleDragEnd = (event) => {
     const { over } = event;
     if (over && activeDragItem) {
-      // Prevent mapping a status to itself if BMW and BOSCH workflows have overlapping names
       if (
         companyAWorkflow.includes(activeDragItem) &&
         companyBWorkflow.includes(over.id)
-        // Remove the "&& activeDragItem !== over.id" condition
       ) {
         setMapping((prev) => {
           const current = prev[activeDragItem] || [];
@@ -233,7 +228,6 @@ export default function Page() {
           return prev;
         });
       }
-      
     }
     setActiveDragItem(null);
   };
@@ -252,7 +246,6 @@ export default function Page() {
       }
     });
 
-    // Also remove associated LLM command if any
     setLlmCommands((prev) => {
       const updatedBStates = (prev[aState] || []).filter((s) => s !== bState);
       if (updatedBStates.length === 0) {
@@ -274,30 +267,40 @@ export default function Page() {
     }));
   };
 
+  function askLLM(mappedStates) {
+    // Hard-coded to always choose the second option
+    if (mappedStates.length >= 2) {
+      return mappedStates[1];
+    }
+    return mappedStates[0];
+  }
+
   const handleSimulateSync = () => {
     setIsSimulating(true);
-    // Simulate a delay for the popup
-    setTimeout(() => {
-      setIsSimulating(false);
-      setSnackbar({
-        open: true,
-        message: "Simulating Sync completed!",
-        severity: "success",
-      });
-    }, 1000);
+    const results = [];
+
+    for (const aState of Object.keys(mapping)) {
+      if (mapping[aState].length >= 2) {
+        const tickets = sampleTickets[aState] || [];
+        for (const ticket of tickets) {
+          const chosenState = askLLM(mapping[aState]);
+          results.push(
+            `Ticket ${ticket.id} in A state "${aState}" -> chosen B state: ${chosenState}`
+          );
+        }
+      }
+    }
+
+    setSimulationResults(results);
   };
 
   const handleSimulateAllSync = () => {
     setIsSimulating(true);
-    // Simulate a delay for the popup
-    setTimeout(() => {
-      setIsSimulating(false);
-      setSnackbar({
-        open: true,
-        message: "Simulating All Sync completed!",
-        severity: "success",
-      });
-    }, 1000);
+    const results = [];
+    // For now, just simulate with no logic, or we could apply similar logic as handleSimulateSync
+    // If needed, expand here
+    results.push("All mappings simulated!");
+    setSimulationResults(results);
   };
 
   const handleCloseSnackbar = (event, reason) => {
@@ -305,6 +308,11 @@ export default function Page() {
       return;
     }
     setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleAcknowledge = () => {
+    setIsSimulating(false);
+    setSimulationResults([]);
   };
 
   const mappedStates = Object.keys(mapping);
@@ -374,30 +382,38 @@ export default function Page() {
         <Grid container spacing={6}>
           {/* BMW Workflow */}
           <Grid item xs={12} md={3}>
-            {/* <Typography variant="h6" className="text-lg font-bold mb-4">
-              BMW Workflow
-            </Typography> */}
-            <Box display="flex" alignItems="center" className="text-2xl font-bold  mb-4">
-            <FormControl variant="outlined" size="small" sx={{ minWidth: 150, marginRight: 2 }}>
-                <InputLabel id="company-select-label"   className="mb-2 text-black dark:text-white" >Company</InputLabel>
-                <Select
-                className="text-black dark:text-white mb-2 text-2xl"
-                labelId="company-select-label"
-                id="company-select"
-                value={companyA}
-                onChange={(e) => setCompanyA(e.target.value)}
-                label="Company"
+            <Box
+              display="flex"
+              alignItems="center"
+              className="text-2xl font-bold  mb-4"
+            >
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 150, marginRight: 2 }}
+              >
+                <InputLabel
+                  id="company-select-label"
+                  className="mb-2 text-black dark:text-white"
                 >
-                {Object.keys(companies).map((company) => (
+                  Company
+                </InputLabel>
+                <Select
+                  className="text-black dark:text-white mb-2 text-2xl"
+                  labelId="company-select-label"
+                  id="company-select"
+                  value={companyA}
+                  onChange={(e) => setCompanyA(e.target.value)}
+                  label="Company"
+                >
+                  {Object.keys(companies).map((company) => (
                     <MenuItem key={company} value={company}>
-                    {company}
+                      {company}
                     </MenuItem>
-                ))}
+                  ))}
                 </Select>
-            </FormControl>
-            <Typography variant="h6">
-                Workflow
-            </Typography>
+              </FormControl>
+              <Typography variant="h6">Workflow</Typography>
             </Box>
             {companyAWorkflow.map((state) => (
               <DraggableItem key={state} id={state}>
@@ -435,23 +451,14 @@ export default function Page() {
                       ))}
                     </Box>
 
-                    {/* Display LLM input box and Simulate Sync button if there are at least 2 mappings */}
                     {mapping[stateA].length >= 2 && (
-                      <Box
-                        display="flex"
-                        alignItems="flex-start"
-                        gap={2}
-                        mt={2}
-                        width="100%"
-                      >
+                      <Box gap={2} mt={2} width="100%">
                         <Box flexGrow={1}>
-                          <Typography
-                            variant="body1"
-                            className="font-bold mb-2"
-                          >
+                          <Typography variant="body1" className="font-bold mb-2">
                             LLM Command:
                           </Typography>
-                          <textarea className="text-gray-600 mb-2"
+                          <textarea
+                            className="text-gray-600 mb-2"
                             rows="5"
                             placeholder="Enter your command here. Example: 'If the ticket description or last comment implies engineers are done and are awaiting review, put it to respective status. If it appears to be peer-reviewed by another engineer already and approved, yet not brought to status due to the manager not taking action yet, put it to 'approved' instead.'"
                             value={llmCommands[stateA] || ""}
@@ -473,14 +480,10 @@ export default function Page() {
                             onClick={handleSimulateSync}
                             style={{
                               padding: "0.75rem 1.5rem",
-                              backgroundColor: "#3b82f6",
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: "0.375rem",
+                              border: "1px dashed #e5e7eb",
                               cursor: "pointer",
                               fontWeight: "bold",
                               height: "fit-content",
-                              transform: "rotate(90deg)", // Rotate the button by 90 degrees
                             }}
                           >
                             Simulate Sync
@@ -491,20 +494,16 @@ export default function Page() {
                   </MappingLine>
                 ))}
 
-                {/* "Simulate All Sync" Button */}
                 {hasMultipleMappings && (
                   <Box display="flex" justifyContent="center" mt={4}>
                     <button
                       onClick={handleSimulateAllSync}
                       style={{
                         padding: "0.75rem 1.5rem",
-                        backgroundColor: "#10b981", // Green color
-                        color: "#fff",
-                        border: "none",
+                        border: "1px dashed #e5e7eb",
                         borderRadius: "0.375rem",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        transform: "rotate(0deg)", // No rotation
                       }}
                     >
                       Simulate All Sync
@@ -517,35 +516,38 @@ export default function Page() {
 
           {/* BOSCH Workflow */}
           <Grid item xs={12} md={3}>
-            {/* <Typography
-              variant="h6"
-              className="text-lg font-bold mb-4"
+            <Box
+              display="flex"
+              alignItems="center"
+              className="text-2xl font-bold  mb-4"
             >
-              BOSCH Workflow
-            </Typography> */}
-            <Box display="flex" alignItems="center" className="text-2xl font-bold  mb-4">
-
-                <FormControl variant="outlined" size="small" sx={{ minWidth: 150, marginRight: 2 }}>
-                    <InputLabel id="company-select-label"   className="mb-2 text-black dark:text-white" >Company</InputLabel>
-                    <Select
-                    className="text-black dark:text-white mb-2 text-2xl"
-                    labelId="company-select-label"
-                    id="company-select"
-                    value={companyB}
-                    onChange={(e) => setCompanyB(e.target.value)}
-                    label="Company"
-                    >
-                    {Object.keys(companies).map((company) => (
-                        <MenuItem key={company} value={company}>
-                        {company}
-                        </MenuItem>
-                    ))}
-                    </Select>
-                    
-                </FormControl>
-                <Typography variant="h6">
-                    Workflow
-                </Typography>
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 150, marginRight: 2 }}
+              >
+                <InputLabel
+                  id="company-select-label"
+                  className="mb-2 text-black dark:text-white"
+                >
+                  Company
+                </InputLabel>
+                <Select
+                  className="text-black dark:text-white mb-2 text-2xl"
+                  labelId="company-select-label"
+                  id="company-select"
+                  value={companyB}
+                  onChange={(e) => setCompanyB(e.target.value)}
+                  label="Company"
+                >
+                  {Object.keys(companies).map((company) => (
+                    <MenuItem key={company} value={company}>
+                      {company}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="h6">Workflow</Typography>
             </Box>
             {companyBWorkflow.map((state) => (
               <DroppableItem key={state} id={state}>
@@ -564,10 +566,9 @@ export default function Page() {
         </DragOverlay>
       </DndContext>
 
-      {/* Modal for Simulating Sync */}
       <Modal
         open={isSimulating}
-        onClose={() => setIsSimulating(false)}
+        onClose={() => {}} // Do nothing on outside click
         aria-labelledby="simulating-sync"
         aria-describedby="simulating-the-sync-process"
       >
@@ -583,19 +584,62 @@ export default function Page() {
             borderRadius="0.375rem"
             boxShadow={24}
             textAlign="center"
+            maxWidth="600px"
+            width="100%"
           >
-            <Typography variant="h6" component="h2" gutterBottom className="text-gray-600 mb-2"> 
-              Simulating Sync...
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              className="text-gray-600 mb-2"
+            >
+              Simulating Syncronization
             </Typography>
-            <Typography variant="body2" className="text-gray-600 mb-2">
-              Please wait while we simulate the synchronization process.
+            <Typography variant="body2" className="text-gray-600 mb-4">
+              The LLM has chosen the following mappings:
             </Typography>
+            <Box
+              bgcolor="#f3f4f6"
+              p={2}
+              borderRadius="0.375rem"
+              mb={4}
+              maxHeight="200px"
+              overflow="auto"
+            >
+              {simulationResults.length === 0 ? (
+                <Typography variant="body2" className="text-gray-600">
+                  No results yet.
+                </Typography>
+              ) : (
+                simulationResults.map((res, idx) => (
+                  <Typography
+                    key={idx}
+                    variant="body2"
+                    className="text-gray-800 mb-1"
+                  >
+                    {res}
+                  </Typography>
+                ))
+              )}
+            </Box>
+            <button className="text-gray-600"
+              onClick={handleAcknowledge}
+              style={{
+                
+                padding: "0.75rem 1.5rem",
+                border: "1px dashed #e5e7eb",
+                borderRadius: "0.375rem",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Acknowledge
+            </button>
           </Box>
         </Box>
       </Modal>
 
-      {/* Snackbar for Notifications */}
-      <Snackbar 
+      <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
@@ -611,7 +655,6 @@ export default function Page() {
         </Alert>
       </Snackbar>
 
-      {/* Sample Tickets */}
       <div className="mt-16">
         <Divider className="mb-4" />
         {companyAWorkflow.map((status) => renderSampleTickets(status))}
