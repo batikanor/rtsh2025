@@ -19,3 +19,12 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+html {
+  font-size: 16px; /* Ensures a consistent base font size */
+}
+
+body {
+  font-size: 1rem; /* Standardize scaling relative to the base size */
+  line-height: 1.5; /* Improves readability */
+}
