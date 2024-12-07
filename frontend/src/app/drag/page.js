@@ -219,8 +219,8 @@ export default function Page() {
       // Prevent mapping a status to itself if BMW and BOSCH workflows have overlapping names
       if (
         companyAWorkflow.includes(activeDragItem) &&
-        companyBWorkflow.includes(over.id) &&
-        activeDragItem !== over.id
+        companyBWorkflow.includes(over.id)
+        // Remove the "&& activeDragItem !== over.id" condition
       ) {
         setMapping((prev) => {
           const current = prev[activeDragItem] || [];
@@ -233,6 +233,7 @@ export default function Page() {
           return prev;
         });
       }
+      
     }
     setActiveDragItem(null);
   };
