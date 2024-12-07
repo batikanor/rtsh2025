@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased flex flex-col min-h-screen">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow fixed top-0 left-0 right-0 z-50">
+        <header className="bg-white dark:bg-blue-800 shadow fixed top-0 left-0 right-0 z-50">
           <Navbar />
         </header>
         <div className="flex-1 flex flex-col lg:flex-row mt-[4rem]"> {/* Adjust the top margin */}

@@ -1,1 +1,0 @@
-# Note that the API is not working, because we are exporting static files only in our nextjs frontend!
