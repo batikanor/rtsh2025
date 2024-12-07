@@ -1,1 +1,1 @@
-uvicorn main:app --reload
+cd backend && uvicorn main:app --reload

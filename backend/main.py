@@ -1,31 +1,51 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from services import jira_service
+from dotenv import load_dotenv
+load_dotenv() 
+
 
 app = FastAPI()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend URLs
-    allow_origins=["*"],  # Frontend URLs
-
+    allow_origins=["*"],  # Adjust for production
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Example GET endpoint
+# Existing endpoints
 @app.get("/hello")
 def read_hello(name: str = "World"):
-    """
-    Returns a simple greeting message.
-    """
     return {"message": f"Hello, {name}!"}
 
-# Example POST endpoint
 @app.post("/items")
 def create_item(item: dict):
-    """
-    Receives an item and returns a success response.
-    """
     return {"status": "success", "item": item}
+
+# Jira endpoints
+@app.get("/jira/issues")
+def get_jira_issues(project_key: str):
+    try:
+        data = jira_service.get_issues(project_key)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/jira/issues")
+def post_jira_issue(project_key: str, summary: str, issue_type: str = "Task", description: str = ""):
+    try:
+        data = jira_service.create_issue(project_key, summary, issue_type, description)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# New route to fetch Jira projects
+@app.get("/jira/projects")
+def get_jira_projects():
+    try:
+        data = jira_service.get_projects()
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
