@@ -13,7 +13,8 @@ const nextConfig = {
      * @see https://nextjs.org/docs/app/api-reference/next-config-js/basePath
      */
     basePath: "/rtsh2025",
-  
+    assetPrefix: "/rtsh2025/", // Add this line
+
     /**
      * Disable server-based image optimization. Next.js does not support
      * dynamic features with static exports.
