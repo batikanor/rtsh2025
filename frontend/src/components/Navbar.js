@@ -14,7 +14,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
           <span className="text-2xl md:text-3xl font-bold tracking-wide cursor-pointer hover:text-stone-600 dark:hover:text-stone-300 transition duration-200">
-            RTSH Potential Winner Project
+            JiWizz
           </span>
         </Link>
 
@@ -27,7 +27,7 @@ export default function Navbar() {
           </Link>
           <Link href="/map">
             <span className="hover:text-stone-600 dark:hover:text-stone-300 transition duration-200 cursor-pointer">
-              Map
+              Roadmap
             </span>
           </Link>
           <Link href="/about">
